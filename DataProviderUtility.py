@@ -9,7 +9,7 @@ class DataProviderUtility():
         self.fileList=[]
         self.dataDict={}
         try:
-            if location.split(".")[-1]!="csv":
+            if location.split(".")[-1]!="csv" and os.path.isdir(location):
                 for fileAtLoc in os.listdir(location):
                     filePath=os.path.join(location,fileAtLoc)
                     if os.path.isfile(filePath) and fileAtLoc.split(".")[-1]=="csv":
@@ -43,8 +43,10 @@ class DataProviderUtility():
             key="CSV file name from which you want to take data"
         '''
         try:
-            if key is None:
-                key="".join(self.SingleFile.split(".")[:-1])
+            if key is None and self.SingleFile is None:
+                print("Provide File name without extension")
+            elif key is None and self.SingleFile is not None:
+                key="".join(self.SingleFile.split(".")[:-1]) 
             data=self.dataDict[key]
             if method=="rand":
                 index=random.randint(0,len(data)-1)
