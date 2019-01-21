@@ -3,20 +3,23 @@ import pandas as pd
 import random
 class DataProviderUtility():
     '''Will read Data from CSV file and Provide them to testing framework'''
-    def __init__(self, location,fileName="ALL"):
+    def __init__(self, location):
         self.location=location
+        self.SingleFile=None
         self.fileList=[]
         self.dataDict={}
         try:
-            if fileName=="ALL":
+            if location.split(".")[-1]!="csv" and os.path.isdir(location):
                 for fileAtLoc in os.listdir(location):
                     filePath=os.path.join(location,fileAtLoc)
                     if os.path.isfile(filePath) and fileAtLoc.split(".")[-1]=="csv":
                         self.fileList.append(fileAtLoc)
+            elif os.path.isfile(location) and location.split(".")[-1]=="csv":
+                    self.fileList.append(location.split('/')[-1])
+                    self.SingleFile=location.split("/")[-1]
+                    self.location=location[:-1*len(self.fileList[0])]
             else:
-                filePath=os.path.join(location,fileName)
-                if os.path.isfile(filePath) and fileName.split(".")[-1]=="csv":
-                    self.fileList.append(fileName)
+                print("file Not Found")
         except Exception as ex:
             print(ex)
     
@@ -33,14 +36,20 @@ class DataProviderUtility():
             print(ex)
         return self.dataDict
     
-    def getData(self,key,method="rand",index="-1"):
+   
+
+    def getData(self,key=None,method="rand",index="-1"):
         ''' Provide one data randomly or linearly
             key="CSV file name from which you want to take data"
         '''
-        try:    
+        try:
+            if key is None and self.SingleFile is None:
+                print("Provide File name without extension")
+            elif key is None and self.SingleFile is not None:
+                key="".join(self.SingleFile.split(".")[:-1]) 
             data=self.dataDict[key]
             if method=="rand":
-                index=random.randint(0,len(data)-1)    
+                index=random.randint(0,len(data)-1)
             return data.to_dict(orient='records')[index]
         except Exception as ex:
             print(ex)
